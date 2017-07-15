@@ -1,5 +1,5 @@
 // Package stringsmoar contains moar utility functions for working with strings.
-// Extending the helpr functions from https://golang.org/pkg/strings and https://golang.org/src/strings/strings.go
+// Extending the helper functions from https://golang.org/pkg/strings and https://golang.org/src/strings/strings.go
 package stringsmoar
 
 import (
@@ -9,8 +9,8 @@ import (
 	"unicode/utf8"
 )
 
-// RuneCounts returns a map of the count of each rune in the string
-func RuneCounts(s string) map[rune]int {
+// RuneFrequency returns a map of the count of each rune in the string
+func RuneFrequency(s string) map[rune]int {
 	m := make(map[rune]int)
 	for _, r := range s {
 		m[r]++
@@ -18,8 +18,8 @@ func RuneCounts(s string) map[rune]int {
 	return m
 }
 
-// Unique returns a string where each rune from the original string only occurs once, in the order that they first appear
-func Unique(s string) string {
+// Set returns a string where each rune from the original string only occurs once, in the order that they first appear
+func Set(s string) string {
 	var uniques string
 	m := make(map[rune]struct{})
 	for _, r := range s {
@@ -41,13 +41,28 @@ func Sorted(s string) string {
 	return string(runes)
 }
 
+// Permutations generates all the permutations of the runes in a string https://en.wikipedia.org/wiki/Permutation
+func Permutations(s string) []string {
+	if utf8.RuneCountInString(s) <= 1 {
+		return []string{s}
+	}
+	var result []string
+	for i, v := range s {
+		p := Permutations(RemoveNthRune(s, i))
+		for _, c := range p {
+			result = append(result, string(v)+c)
+		}
+	}
+	return result
+}
+
 // PermutePick generates the permutations when only subset N of S is picked
 func PermutePick(s string, n int) []string {
 	return permutePickInternal(s, n, 0)
 }
 
 func permutePickInternal(s string, n int, current int) []string {
-	if len(s) <= 1 {
+	if utf8.RuneCountInString(s) <= 1 {
 		return []string{s}
 	}
 	var result []string
@@ -65,19 +80,30 @@ func permutePickInternal(s string, n int, current int) []string {
 	return result
 }
 
-// Permutations generates all the permutations of the runes in a string https://en.wikipedia.org/wiki/Permutation
-func Permutations(s string) []string {
-	if len(s) <= 1 {
+// Combinations chooses the subset N of S without regards to order , https://en.wikipedia.org/wiki/Combination
+func Combinations(s string, n int) []string {
+	if utf8.RuneCountInString(s) <= n {
 		return []string{s}
 	}
 	var result []string
-	for i, v := range s {
-		p := Permutations(RemoveNthRune(s, i))
-		for _, c := range p {
-			result = append(result, string(v)+c)
+	p := permutePickInternal(s, n, 0)
+	result = DeduplicateRuneCombinations(p)
+	return result
+}
+
+// DeduplicateRuneCombinations returns a slice of strings where each one is a unique (sorted) rune combination (aka a set)
+func DeduplicateRuneCombinations(strings []string) []string {
+	var uniques []string
+	m := make(map[string]struct{})
+	for _, s := range strings {
+		sSorted := Sorted(s)
+		_, ok := m[sSorted]
+		if !ok {
+			m[sSorted] = struct{}{}
+			uniques = append(uniques, sSorted)
 		}
 	}
-	return result
+	return uniques
 }
 
 // RemoveNthRune removes a specific rune from the string by it's index location
