@@ -6,11 +6,26 @@ import (
 	"testing"
 )
 
+func TestRunes(t *testing.T) {
+	testCases := []stringRuneSliceTestObject{
+		{s: "a", expected: []rune{'a'}},
+		{s: "猫b", expected: []rune{'猫', 'b'}},
+		{s: "猫bчч", expected: []rune{'猫', 'b', 'ч', 'ч'}},
+		{s: "b 猫-7", expected: []rune{'b', ' ', '猫', '-', '7'}},
+	}
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("%#v into runes", tc.s), func(t *testing.T) {
+			assertRuneSlicesEqual(t, Runes(tc.s), tc.expected)
+		})
+	}
+}
+
 func TestRuneFrequency(t *testing.T) {
-	testCases := []runeFrequencyTestObject{
+	testCases := []stringMapRuneIntTestObject{
+		{s: "", expected: map[rune]int{}},
 		{s: "a", expected: map[rune]int{'a': 1}},
 		{s: "a猫猫", expected: map[rune]int{'a': 1, '猫': 2}},
-		{s: "猫猫猫bcc", expected: map[rune]int{'猫': 3, 'b': 1, 'c': 2}},
+		{s: "猫猫猫bccч", expected: map[rune]int{'猫': 3, 'b': 1, 'c': 2, 'ч': 1}},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%#v has distinct rune counts", tc.s), func(t *testing.T) {
@@ -19,13 +34,9 @@ func TestRuneFrequency(t *testing.T) {
 	}
 }
 
-type runeFrequencyTestObject struct {
-	s        string
-	expected map[rune]int
-}
-
 func TestSet(t *testing.T) {
 	testCases := []stringStringTestObject{
+		{s: "", expected: ""},
 		{s: "a", expected: "a"},
 		{s: "a猫猫", expected: "a猫"},
 		{s: "猫猫猫bcc", expected: "猫bc"},
@@ -33,13 +44,43 @@ func TestSet(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%#v can be reduced to distinct rune counts", tc.s), func(t *testing.T) {
-			result := Set(tc.s)
-			if tc.expected != result {
-				t.Error("\nExpected:", tc.expected, "\nReceived: ", result)
-			}
+			assertStringsEqual(t, tc.expected, Set(tc.s))
 		})
 	}
 }
+
+func TestExclusive(t *testing.T) {
+	testCases := []stringMapRuneBoolStringTestObject{
+		{s: "a", runes: map[rune]bool{'a': true}, expected: "a"},
+		{s: "a", runes: map[rune]bool{}, expected: ""},
+		{s: "猫a", runes: map[rune]bool{'猫': true}, expected: "猫"},
+		{s: "猫a", runes: map[rune]bool{'猫': true}, expected: "猫"},
+		{s: "чч9猫ччч", runes: map[rune]bool{'ч': true, '9': true}, expected: "чч9ччч"},
+		{s: "zyxabc9猫", runes: map[rune]bool{}, expected: ""},
+	}
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("%#v with only runes %#v", tc.s, tc.runes), func(t *testing.T) {
+			assertStringsEqual(t, tc.expected, Exclusive(tc.s, tc.runes))
+		})
+	}
+}
+
+func TestRemoveWhenAdjacentRunes(t *testing.T) {
+	testCases := []stringStringTestObject{
+		{s: "a", expected: "a"},
+		{s: "aab", expected: "b"},
+		{s: "猫a", expected: "猫a"},
+		{s: "foo9bar猫猫", expected: "f9bar"},
+		{s: "чччfoo9bar猫猫", expected: "f9bar"},
+	}
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("%#v with any adjacent-repeated runes removed", tc.s), func(t *testing.T) {
+			assertStringsEqual(t, tc.expected, removeWhenAdjacentRunes(tc.s))
+		})
+	}
+}
+
+// TODO: TestGetAdjacentRunes
 
 func TestSorted(t *testing.T) {
 	testCases := []stringStringTestObject{
@@ -51,30 +92,25 @@ func TestSorted(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%#v runes can be sorted", tc.s), func(t *testing.T) {
-			result := Sorted(tc.s)
-			if tc.expected != result {
-				t.Error("\nExpected:", tc.expected, "\nReceived: ", result)
-			}
+			assertStringsEqual(t, tc.expected, Sorted(tc.s))
 		})
 	}
 }
 
 func TestRemoveNthRune(t *testing.T) {
 	testCases := []removeNthRuneTestObject{
-		{s: "abc", i: 1, expected: "ac"},
 		{s: "", i: 0, expected: ""},
 		{s: "", i: 1, expected: ""},
 		{s: "a", i: 0, expected: ""},
-		{s: "ab", i: 0, expected: "b"},
-		{s: "abc", i: 2, expected: "ab"},
 		{s: "abc", i: 3, expected: "abc"},
+		{s: "abc", i: 1, expected: "ac"},
+		{s: "猫b", i: 0, expected: "b"},       // runeValue, width := utf8.DecodeRuneInString(s[i:]) , 3 bytes
+		{s: "aчc", i: 3, expected: "aч"},     // a = 1 byte, ч = 2 bytes
+		{s: "猫猫猫9ч", i: 6, expected: "猫猫9ч"}, // 猫 is 3 bytes
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%#v removal of location %#v", tc.s, tc.i), func(t *testing.T) {
-			result := RemoveNthRune(tc.s, tc.i)
-			if tc.expected != result {
-				t.Error("\nExpected:", tc.expected, "\nReceived: ", result)
-			}
+			assertStringsEqual(t, tc.expected, RemoveNthRune(tc.s, tc.i))
 		})
 	}
 }
@@ -154,18 +190,18 @@ func TestPermutations(t *testing.T) {
 func TestPermutePick(t *testing.T) {
 	testCases := []stringIntStringSliceTestObject{
 		{s: "a", n: 1, expected: []string{"a"}},
+		{s: "猫", n: 1, expected: []string{"猫"}},
 		{s: "ab", n: 2, expected: []string{"ab", "ba"}},
 		{s: "ba", n: 2, expected: []string{"ba", "ab"}},
-		{s: "abc", n: 3, expected: []string{"abc", "acb", "bac", "bca", "cab", "cba"}},
-		{s: "abc", n: 1, expected: []string{"a", "b", "c"}},
+		{s: "ab猫", n: 3, expected: []string{"ab猫", "a猫b", "ba猫", "b猫a", "猫ab", "猫ba"}},
+		{s: "猫bc", n: 1, expected: []string{"猫", "b", "c"}},
 		{s: "abcd", n: 1, expected: []string{"a", "b", "c", "d"}},
 		{s: "abcd", n: 2, expected: []string{
 			"ab", "ac", "ad",
 			"ba", "bc", "bd",
 			"ca", "cb", "cd",
 			"da", "db", "dc"}},
-		{s: "Туч", n: 2, expected: []string{
-			"Ту", "Тч", "уТ", "уч", "чТ", "чу"}},
+		{s: "Туч", n: 2, expected: []string{"Ту", "Тч", "уТ", "уч", "чТ", "чу"}},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%#v permutations", tc.s), func(t *testing.T) {
@@ -216,6 +252,22 @@ type stringStringSliceTestObject struct {
 	expected []string
 }
 
+type stringRuneSliceTestObject struct {
+	s        string
+	expected []rune
+}
+
+type stringMapRuneIntTestObject struct {
+	s        string
+	expected map[rune]int
+}
+
+type stringMapRuneBoolStringTestObject struct {
+	s        string
+	runes    map[rune]bool
+	expected string
+}
+
 type stringSliceStringSliceTestObject struct {
 	s        []string
 	expected []string
@@ -227,13 +279,27 @@ type stringIntStringSliceTestObject struct {
 	expected []string
 }
 
-func assertMapsRuneIntEqual(t *testing.T, expected map[rune]int, result map[rune]int) {
+func assertStringsEqual(t *testing.T, expected string, result string) {
+	// t.Helper()
+	if expected != result {
+		t.Error("\nExpected:", expected, "\nReceived: ", result)
+	}
+}
+
+func assertRuneSlicesEqual(t *testing.T, expected []rune, result []rune) {
+	// t.Helper()
 	if !reflect.DeepEqual(expected, result) {
 		t.Error("\nExpected:", expected, "\nReceived: ", result)
 	}
 }
 
 func assertSlicesEqual(t *testing.T, expected []string, result []string) {
+	if !reflect.DeepEqual(expected, result) {
+		t.Error("\nExpected:", expected, "\nReceived: ", result)
+	}
+}
+
+func assertMapsRuneIntEqual(t *testing.T, expected map[rune]int, result map[rune]int) {
 	if !reflect.DeepEqual(expected, result) {
 		t.Error("\nExpected:", expected, "\nReceived: ", result)
 	}

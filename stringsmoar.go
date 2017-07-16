@@ -6,8 +6,18 @@ import (
 	"bytes"
 	"errors"
 	"sort"
+	"strings"
 	"unicode/utf8"
 )
+
+// Runes returns a slice of runes from a string
+func Runes(s string) []rune {
+	var runes []rune
+	for _, r := range s {
+		runes = append(runes, r)
+	}
+	return runes
+}
 
 // RuneFrequency returns a map of the count of each rune in the string
 func RuneFrequency(s string) map[rune]int {
@@ -31,6 +41,55 @@ func Set(s string) string {
 		}
 	}
 	return uniques
+}
+
+// Exclusive returns a string which contains only the runes that are in the map
+func Exclusive(s string, runes map[rune]bool) string {
+	var result string
+	for _, v := range s {
+		if runes[v] {
+			result += string(v)
+		}
+	}
+	return result
+}
+
+// removeWhenAdjacentRunes will remove runes that repeat, i.e. aaabccd will become bd
+func removeWhenAdjacentRunes(s string) string {
+	if utf8.RuneCountInString(s) < 2 {
+		return s
+	}
+	runes := Runes(s)
+	duplicates := getAdjacentRunes(runes)
+	reduced := s
+	for _, r := range duplicates {
+		reduced = strings.Replace(reduced, string(r), "", -1)
+	}
+	return reduced
+}
+
+func getAdjacentRunes(runes []rune) []rune {
+	var duplicates []rune
+	for i := 1; i < len(runes); i++ {
+		if runes[i-1] == runes[i] {
+			duplicates = append(duplicates, runes[i])
+		}
+	}
+	return duplicates
+}
+
+// RemoveNthRune removes a specific rune from the string by it's index location (i.e. the value returned by range s)
+func RemoveNthRune(s string, n int) string {
+	if s == "" {
+		return s
+	}
+	buffer := bytes.NewBuffer(nil)
+	for i, r := range s {
+		if i != n {
+			buffer.WriteRune(r)
+		}
+	}
+	return buffer.String()
 }
 
 // Sorted returns a string where each rune from the original is now sorted
@@ -71,7 +130,8 @@ func permutePickInternal(s string, n int, current int) []string {
 		if current == n {
 			result = append(result, string(v))
 		} else {
-			p := permutePickInternal(RemoveNthRune(s, i), n, current)
+			smaller := RemoveNthRune(s, i)
+			p := permutePickInternal(smaller, n, current)
 			for _, c := range p {
 				result = append(result, string(v)+c)
 			}
@@ -104,22 +164,6 @@ func DeduplicateRuneCombinations(strings []string) []string {
 		}
 	}
 	return uniques
-}
-
-// RemoveNthRune removes a specific rune from the string by it's index location
-func RemoveNthRune(s string, n int) string {
-	buffer := bytes.NewBuffer(nil)
-	for i, r := range s {
-		if i != n {
-			buffer.WriteRune(r)
-		}
-	}
-	return buffer.String()
-	/* // below works but seems like it has an extra allocation
-	runes := make([]rune, len(s))
-	copy(runes, []rune(s))
-	string(append(runes[:i], runes[i+1:]...))
-	*/
 }
 
 func replaceNthRune(s string, n int, newR rune) (string, error) {
