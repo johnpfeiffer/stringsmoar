@@ -126,6 +126,25 @@ func Permutations(s string) []string {
 	return result
 }
 
+// PermutationsSlices returns a slice of each permutation of the list of elements
+func PermutationsSlices(s []string) [][]string {
+	var result [][]string
+	if len(s) <= 1 {
+		return append(result, s)
+	}
+	for i, item := range s {
+		subset := RemoveNthItem(s, i)
+		p := PermutationsSlices(subset)
+		for _, sublists := range p {
+			temp := []string{}
+			temp = append(temp, item) // prepend for "stability"
+			temp = append(temp, sublists...)
+			result = append(result, temp)
+		}
+	}
+	return result
+}
+
 // PermutePick generates the permutations when only subset N of S is picked
 func PermutePick(s string, n int) []string {
 	return permutePickInternal(s, n, 0)

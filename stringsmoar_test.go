@@ -205,6 +205,35 @@ func TestPermutations(t *testing.T) {
 	}
 }
 
+func TestPermutationsSlices(t *testing.T) {
+	var testCases = []struct {
+		a        []string
+		expected [][]string
+	}{
+		{a: []string{"a"}, expected: generateSliceOfStringSlices([]string{"a"})},
+		{a: []string{"a", "b"},
+			expected: generateSliceOfStringSlices([]string{"a", "b"}, []string{"b", "a"})},
+		// {a: []string{"a", "b", "猫咪"},
+
+	}
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("%#v permutation slices", tc.a), func(t *testing.T) {
+			result := PermutationsSlices(tc.a)
+			if !reflect.DeepEqual(tc.expected, result) {
+				t.Error("\nExpected:", tc.expected, "\nReceived: ", result)
+			}
+		})
+	}
+}
+
+func generateSliceOfStringSlices(a ...[]string) [][]string {
+	var result [][]string
+	for _, item := range a {
+		result = append(result, item)
+	}
+	return result
+}
+
 func TestPermutePick(t *testing.T) {
 	testCases := []stringIntStringSliceTestObject{
 		{s: "a", n: 1, expected: []string{"a"}},
