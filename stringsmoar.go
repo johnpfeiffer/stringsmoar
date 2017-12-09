@@ -92,6 +92,17 @@ func RemoveNthRune(s string, n int) string {
 	return buffer.String()
 }
 
+// RemoveNthItem returns a completey new copy of the slice with a specific item (by index location) removed
+func RemoveNthItem(a []string, target int) []string {
+	result := []string{}
+	for i := 0; i < len(a); i++ {
+		if i != target {
+			result = append(result, a[i])
+		}
+	}
+	return result
+}
+
 // Sorted returns a string where each rune from the original is now sorted
 func Sorted(s string) string {
 	runes := []rune(s)

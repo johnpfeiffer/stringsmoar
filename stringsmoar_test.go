@@ -98,7 +98,11 @@ func TestSorted(t *testing.T) {
 }
 
 func TestRemoveNthRune(t *testing.T) {
-	testCases := []removeNthRuneTestObject{
+	var testCases = []struct {
+		s        string
+		i        int
+		expected string
+	}{
 		{s: "", i: 0, expected: ""},
 		{s: "", i: 1, expected: ""},
 		{s: "a", i: 0, expected: ""},
@@ -115,10 +119,24 @@ func TestRemoveNthRune(t *testing.T) {
 	}
 }
 
-type removeNthRuneTestObject struct {
-	s        string
-	i        int
-	expected string
+func TestRemoveNthItem(t *testing.T) {
+	var testCases = []struct {
+		a        []string
+		target   int
+		expected []string
+	}{
+		{a: []string{}, target: 0, expected: []string{}},
+		{a: []string{"aчc"}, target: 0, expected: []string{}},
+		{a: []string{"a", "b"}, target: 0, expected: []string{"b"}},
+		{a: []string{"a", "b"}, target: 1, expected: []string{"a"}},
+		{a: []string{"猫", "b", "c"}, target: 0, expected: []string{"b", "c"}},
+		{a: []string{"a", "b", "猫"}, target: 1, expected: []string{"a", "猫"}},
+	}
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("%#v removal of index %#v", tc.a, tc.target), func(t *testing.T) {
+			assertSlicesEqual(t, tc.expected, RemoveNthItem(tc.a, tc.target))
+		})
+	}
 }
 
 func TestReplaceNthRuneHappyPath(t *testing.T) {
