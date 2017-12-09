@@ -213,8 +213,11 @@ func TestPermutationsSlices(t *testing.T) {
 		{a: []string{"a"}, expected: generateSliceOfStringSlices([]string{"a"})},
 		{a: []string{"a", "b"},
 			expected: generateSliceOfStringSlices([]string{"a", "b"}, []string{"b", "a"})},
-		// {a: []string{"a", "b", "猫咪"},
-
+		{a: []string{"a", "b", "猫咪"},
+			expected: generateSliceOfStringSlices(
+				[]string{"a", "b", "猫咪"}, []string{"a", "猫咪", "b"},
+				[]string{"b", "a", "猫咪"}, []string{"b", "猫咪", "a"},
+				[]string{"猫咪", "a", "b"}, []string{"猫咪", "b", "a"})},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%#v permutation slices", tc.a), func(t *testing.T) {
