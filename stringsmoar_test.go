@@ -234,11 +234,7 @@ func TestPermutationsSlices(t *testing.T) {
 }
 
 func generateSliceOfStringSlices(a ...[]string) [][]string {
-	var result [][]string
-	for _, item := range a {
-		result = append(result, item)
-	}
-	return result
+	return a
 }
 
 func TestPermutePick(t *testing.T) {
