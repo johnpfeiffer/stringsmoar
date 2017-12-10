@@ -92,12 +92,31 @@ func RemoveNthRune(s string, n int) string {
 	return buffer.String()
 }
 
-// RemoveNthItem returns a completey new copy of the slice with a specific item (by index location) removed
-func RemoveNthItem(a []string, target int) []string {
+// RemoveNthItemSlow returns a completely new copy of the slice with a specific item (by index location) removed
+func RemoveNthItemSlow(a []string, target int) []string {
 	result := []string{}
 	for i := 0; i < len(a); i++ {
 		if i != target {
 			result = append(result, a[i])
+		}
+	}
+	return result
+}
+
+// RemoveNthItem returns a completey new copy of the slice with a specific item (by index location) removed
+func RemoveNthItem(a []string, target int) []string {
+	if target > len(a) || target < 0 {
+		return a
+	}
+	if len(a) <= 1 {
+		return []string{}
+	}
+	result := make([]string, len(a)-1)
+	for i := 0; i < len(a); i++ {
+		if i < target {
+			result[i] = a[i]
+		} else if i > target {
+			result[i-1] = a[i]
 		}
 	}
 	return result
@@ -133,7 +152,7 @@ func PermutationsSlices(s []string) [][]string {
 		return append(result, s)
 	}
 	for i, item := range s {
-		subset := RemoveNthItem(s, i)
+		subset := RemoveNthItemSlow(s, i)
 		p := PermutationsSlices(subset)
 		for _, sublists := range p {
 			temp := []string{}

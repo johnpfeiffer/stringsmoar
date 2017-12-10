@@ -125,16 +125,20 @@ func TestRemoveNthItem(t *testing.T) {
 		target   int
 		expected []string
 	}{
-		{a: []string{}, target: 0, expected: []string{}},
-		{a: []string{"aчc"}, target: 0, expected: []string{}},
 		{a: []string{"a", "b"}, target: 0, expected: []string{"b"}},
 		{a: []string{"a", "b"}, target: 1, expected: []string{"a"}},
 		{a: []string{"猫", "b", "c"}, target: 0, expected: []string{"b", "c"}},
 		{a: []string{"a", "b", "猫"}, target: 1, expected: []string{"a", "猫"}},
+		// negative cases
+		{a: []string{}, target: 0, expected: []string{}},
+		{a: []string{"aчc"}, target: 0, expected: []string{}},
+		{a: []string{"a"}, target: 2, expected: []string{"a"}},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%#v removal of index %#v", tc.a, tc.target), func(t *testing.T) {
+			assertSlicesEqual(t, tc.expected, RemoveNthItemSlow(tc.a, tc.target))
 			assertSlicesEqual(t, tc.expected, RemoveNthItem(tc.a, tc.target))
+
 		})
 	}
 }
@@ -352,5 +356,33 @@ func assertSlicesEqual(t *testing.T, expected []string, result []string) {
 func assertMapsRuneIntEqual(t *testing.T, expected map[rune]int, result map[rune]int) {
 	if !reflect.DeepEqual(expected, result) {
 		t.Error("\nExpected:", expected, "\nReceived: ", result)
+	}
+}
+
+func BenchmarkRemoveNthItemSlowShort(b *testing.B) {
+	a := []string{"a", "b", "猫"}
+	for i := 0; i < b.N; i++ {
+		RemoveNthItemSlow(a, 0)
+	}
+}
+
+func BenchmarkRemoveNthItemSlowMany(b *testing.B) {
+	a := []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "猫"}
+	for i := 0; i < b.N; i++ {
+		RemoveNthItemSlow(a, 14)
+	}
+}
+
+func BenchmarkRemoveNthItemShort(b *testing.B) {
+	a := []string{"a", "b", "猫"}
+	for i := 0; i < b.N; i++ {
+		RemoveNthItem(a, 0)
+	}
+}
+
+func BenchmarkRemoveNthItemMany(b *testing.B) {
+	a := []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "猫"}
+	for i := 0; i < b.N; i++ {
+		RemoveNthItem(a, 14)
 	}
 }
