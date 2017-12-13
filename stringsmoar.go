@@ -80,6 +80,28 @@ func getAdjacentRunes(runes []rune) []rune {
 	return duplicates
 }
 
+// ConsecutiveIndex returns the last place where consecutive runes appear
+func ConsecutiveIndex(a []rune, start int) int {
+	index := 0
+	switch {
+	case start >= len(a):
+		return index // TODO better error handling, raise an exception?
+	case len(a) == 0 || len(a) == 1:
+		return index
+	case start == len(a)-1:
+		return start
+	}
+	index = start
+	for i := start; i < len(a)-1; i++ {
+		if a[i] == a[i+1] {
+			index++
+		} else {
+			break
+		}
+	}
+	return index
+}
+
 // RemoveNthRune removes a specific rune from the string by it's index location (i.e. the value returned by range s)
 func RemoveNthRune(s string, n int) string {
 	if s == "" {

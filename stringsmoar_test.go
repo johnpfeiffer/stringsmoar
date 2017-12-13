@@ -74,7 +74,7 @@ func TestRemoveWhenAdjacentRunes(t *testing.T) {
 		{s: "чччfoo9bar猫猫", expected: "f9bar"},
 	}
 	for _, tc := range testCases {
-		t.Run(fmt.Sprintf("%#v with any adjacent-repeated runes removed", tc.s), func(t *testing.T) {
+		t.Run(fmt.Sprintf("%#v", tc.s), func(t *testing.T) {
 			assertStringsEqual(t, tc.expected, removeWhenAdjacentRunes(tc.s))
 		})
 	}
@@ -93,9 +93,34 @@ func TestGetAdjacentRunes(t *testing.T) {
 		{runes: []rune{'猫', '猫', 'a', 'b', 'b'}, expected: []rune{'猫', 'b'}},
 	}
 	for _, tc := range testCases {
-		t.Run(fmt.Sprintf("%v runes adjacent duplicates", tc.runes), func(t *testing.T) {
+		t.Run(fmt.Sprintf("%v", tc.runes), func(t *testing.T) {
 			result := getAdjacentRunes(tc.runes)
 			assertRuneSlicesEqual(t, tc.expected, result)
+		})
+	}
+}
+
+func TestConsecutiveIndex(t *testing.T) {
+	var testCases = []struct {
+		runes    []rune
+		start    int
+		expected int
+	}{
+		{runes: []rune{}, start: 0, expected: 0},
+		{runes: []rune{'a'}, start: 0, expected: 0},
+		{runes: []rune{'a', 'b'}, start: 2, expected: 0},
+		{runes: []rune{'a', 'b'}, start: 1, expected: 1},
+		{runes: []rune{'a', 'a'}, start: 0, expected: 1},
+		{runes: []rune{'猫', '猫', '猫'}, start: 0, expected: 2},
+		{runes: []rune{'a', '猫', '猫', '猫'}, start: 0, expected: 0},
+		{runes: []rune{'a', '猫', '猫', '猫'}, start: 1, expected: 3},
+	}
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("%v starting %d", tc.runes, tc.start), func(t *testing.T) {
+			result := ConsecutiveIndex(tc.runes, tc.start)
+			if tc.expected != result {
+				t.Error("\nExpected:", tc.expected, "\nReceived: ", result)
+			}
 		})
 	}
 }
@@ -348,26 +373,28 @@ type stringIntStringSliceTestObject struct {
 }
 
 func assertStringsEqual(t *testing.T, expected string, result string) {
-	// t.Helper()
+	t.Helper()
 	if expected != result {
 		t.Error("\nExpected:", expected, "\nReceived: ", result)
 	}
 }
 
 func assertRuneSlicesEqual(t *testing.T, expected []rune, result []rune) {
-	// t.Helper()
+	t.Helper()
 	if !reflect.DeepEqual(expected, result) {
 		t.Error("\nExpected:", expected, "\nReceived: ", result)
 	}
 }
 
 func assertSlicesEqual(t *testing.T, expected []string, result []string) {
+	t.Helper()
 	if !reflect.DeepEqual(expected, result) {
 		t.Error("\nExpected:", expected, "\nReceived: ", result)
 	}
 }
 
 func assertMapsRuneIntEqual(t *testing.T, expected map[rune]int, result map[rune]int) {
+	t.Helper()
 	if !reflect.DeepEqual(expected, result) {
 		t.Error("\nExpected:", expected, "\nReceived: ", result)
 	}
