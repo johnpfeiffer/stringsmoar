@@ -68,11 +68,13 @@ func removeWhenAdjacentRunes(s string) string {
 	return reduced
 }
 
+// getAdjacentRunes returns a slice of all runes that repeat at least once
 func getAdjacentRunes(runes []rune) []rune {
 	var duplicates []rune
 	for i := 1; i < len(runes); i++ {
 		if runes[i-1] == runes[i] {
 			duplicates = append(duplicates, runes[i])
+			i++
 		}
 	}
 	return duplicates

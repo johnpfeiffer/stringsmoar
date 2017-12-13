@@ -80,7 +80,25 @@ func TestRemoveWhenAdjacentRunes(t *testing.T) {
 	}
 }
 
-// TODO: TestGetAdjacentRunes
+func TestGetAdjacentRunes(t *testing.T) {
+	var testCases = []struct {
+		runes    []rune
+		expected []rune
+	}{
+		{runes: []rune{}, expected: nil},
+		{runes: []rune{'a'}, expected: nil},
+		{runes: []rune{'a', 'b', 'a', 'b', 'c'}, expected: nil},
+		{runes: []rune{'a', 'a'}, expected: []rune{'a'}},
+		{runes: []rune{'a', 'a', 'b', 'b', 'b'}, expected: []rune{'a', 'b'}},
+		{runes: []rune{'猫', '猫', 'a', 'b', 'b'}, expected: []rune{'猫', 'b'}},
+	}
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("%v runes adjacent duplicates", tc.runes), func(t *testing.T) {
+			result := getAdjacentRunes(tc.runes)
+			assertRuneSlicesEqual(t, tc.expected, result)
+		})
+	}
+}
 
 func TestSorted(t *testing.T) {
 	testCases := []stringStringTestObject{
