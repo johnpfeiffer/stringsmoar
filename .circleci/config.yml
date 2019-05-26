@@ -1,0 +1,31 @@
+version: 2 # use CircleCI 2.0
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.12 # https://hub.docker.com/r/circleci/golang/ , https://hub.docker.com/_/golang?tab=description
+    # Go Workspace requirements https://golang.org/doc/code.html#Workspaces
+    working_directory: /go/src/github.com/johnpfeiffer/stringsmoar
+
+    environment:
+      TEST_RESULTS: /tmp/test-results
+
+    steps:
+      - checkout
+      - run: mkdir -p $TEST_RESULTS
+      - run:
+          name: Run unit tests
+          command: |
+            go test -v ./...
+      - run: 
+          name: Run code coverage
+          command: |
+            go test -coverprofile=c.out
+            go tool cover -html=c.out -o coverage.html
+            mv coverage.html $TEST_RESULTS
+
+      - store_artifacts: # Upload test summary for display https://circleci.com/docs/2.0/artifacts/
+          path: /tmp/test-results
+          destination: raw-test-output
+      - store_test_results: # Upload test results for display https://circleci.com/docs/2.0/collect-test-data/
+          path: /tmp/test-results
+
