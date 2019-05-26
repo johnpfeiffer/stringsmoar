@@ -1,5 +1,0 @@
-language: go
-script: go get && go test -v
-notifications:
-  email: false
-

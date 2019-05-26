@@ -4,4 +4,9 @@ I fully understand the need to keep the Go standard library lean and maintainabl
 
 I hope this open source code is helpful (at the very least as an example of how to approach some of the common problems).
 
+updated to do ContinuousIntegration builds with:
+
+- <https://circleci.com/docs/2.0/language-go/>
+- <https://circleci.com/gh/johnpfeiffer/stringsmoar> (see the current build status)
+
 
