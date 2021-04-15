@@ -14,7 +14,7 @@ jobs:
       - run:
           name: Run code coverage
           command: |
-            mkdir -p /tmp/test-results
+            mkdir -p /tmp/test-results/test2json/
             go test -coverprofile=c.out
             go tool cover -html=c.out -o coverage.html
             mv coverage.html /tmp/test-results
