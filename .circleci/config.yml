@@ -2,7 +2,7 @@ version: 2.1 # https://circleci.com/docs/2.0/configuration-reference
 jobs:
   build:
     resource_class: small
-    working_directory: ~/repo
+    working_directory: /go/src
     docker:
       - image: circleci/golang:1.16 # https://hub.docker.com/r/circleci/golang/ , https://hub.docker.com/_/golang?tab=description
     steps:
@@ -14,6 +14,7 @@ jobs:
       - run:
           name: Run code coverage
           command: |
+            pwd
             mkdir -p /tmp/test-results/test2json/
             go test -coverprofile=c.out
             go tool cover -html=c.out -o coverage.html
