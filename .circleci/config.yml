@@ -1,6 +1,7 @@
-version: 2 # use CircleCI 2.0
+version: 2.1
 jobs:
   build:
+    resource_class: small
     docker:
       - image: circleci/golang:1.16 # https://hub.docker.com/r/circleci/golang/ , https://hub.docker.com/_/golang?tab=description
     # Go Workspace requirements https://golang.org/doc/code.html#Workspaces
