@@ -19,6 +19,7 @@ jobs:
             go tool cover -html=c.out -o coverage.html
             mv coverage.html /tmp/test-results
             go test -v ./... | go tool test2json > /tmp/test-results/test2json/test-output.json
+            gotestsum --junitfile /tmp/test-results/gotestsum-report.xml -- stringsmoar
 
       - store_artifacts: # Upload test summary for display https://circleci.com/docs/2.0/artifacts/
           path: /tmp/test-results
