@@ -17,4 +17,11 @@ jobs:
             go test -coverprofile=c.out
             go tool cover -html=c.out -o coverage.html
             mv coverage.html /tmp/test-results
+            go test -v ./... | go tool test2json > /tmp/test-results/test2json/test-output.json
+
+      - store_artifacts: # Upload test summary for display https://circleci.com/docs/2.0/artifacts/
+          path: /tmp/test-results
+          destination: raw-test-output
+      - store_test_results: # Upload test results for display https://circleci.com/docs/2.0/collect-test-data/
+          path: /tmp/test-results
 
