@@ -4,7 +4,7 @@ jobs:
     resource_class: small
     working_directory: ~/repo
     docker:
-      - image: circleci/golang:1.16 # https://hub.docker.com/r/circleci/golang/ , https://hub.docker.com/_/golang?tab=description
+      - image: cimg/go:1.21.4 # https://hub.docker.com/r/cimg/go , https://hub.docker.com/_/golang?tab=description
     steps:
       - checkout
       - run:
