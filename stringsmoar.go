@@ -54,13 +54,13 @@ func Exclusive(s string, runes map[rune]bool) string {
 	return result
 }
 
-// removeWhenAdjacentRunes will remove runes that repeat, i.e. aaabccd will become bd
-func removeWhenAdjacentRunes(s string) string {
+// ExcludeRunesWithAdjacentDuplicates will remove runes that repeat, i.e. aaabccd will become bd
+func ExcludeRunesWithAdjacentDuplicates(s string) string {
 	if utf8.RuneCountInString(s) < 2 {
 		return s
 	}
 	runes := Runes(s)
-	duplicates := getAdjacentRunes(runes)
+	duplicates := FindAdjacentDuplicateRunes(runes)
 	reduced := s
 	for _, r := range duplicates {
 		reduced = strings.Replace(reduced, string(r), "", -1)
@@ -68,8 +68,8 @@ func removeWhenAdjacentRunes(s string) string {
 	return reduced
 }
 
-// getAdjacentRunes returns a slice of all runes that repeat at least once
-func getAdjacentRunes(runes []rune) []rune {
+// FindAdjacentDuplicateRunes returns a slice of all runes that repeat at least once
+func FindAdjacentDuplicateRunes(runes []rune) []rune {
 	var duplicates []rune
 	for i := 1; i < len(runes); i++ {
 		if runes[i-1] == runes[i] {
@@ -84,7 +84,7 @@ func getAdjacentRunes(runes []rune) []rune {
 func ConsecutiveIndex(a []rune, start int) int {
 	index := 0
 	switch {
-	case start >= len(a):
+	case start < 0 || start >= len(a):
 		return index // TODO better error handling, raise an exception?
 	case len(a) == 0 || len(a) == 1:
 		return index

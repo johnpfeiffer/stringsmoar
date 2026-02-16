@@ -41,6 +41,8 @@ func TestSet(t *testing.T) {
 		{s: "a猫猫", expected: "a猫"},
 		{s: "猫猫猫bcc", expected: "猫bc"},
 		{s: "7Z猫猫猫Zcc猫ZZ", expected: "7Z猫c"},
+		{s: " \t ", expected: " \t"},
+		{s: "aaaa", expected: "a"},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%#v can be reduced to distinct rune counts", tc.s), func(t *testing.T) {
@@ -57,6 +59,7 @@ func TestExclusive(t *testing.T) {
 		{s: "猫a", runes: map[rune]bool{'猫': true}, expected: "猫"},
 		{s: "чч9猫ччч", runes: map[rune]bool{'ч': true, '9': true}, expected: "чч9ччч"},
 		{s: "zyxabc9猫", runes: map[rune]bool{}, expected: ""},
+		{s: "", runes: map[rune]bool{'a': true}, expected: ""},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%#v with only runes %#v", tc.s, tc.runes), func(t *testing.T) {
@@ -65,8 +68,9 @@ func TestExclusive(t *testing.T) {
 	}
 }
 
-func TestRemoveWhenAdjacentRunes(t *testing.T) {
+func TestExcludeRunesWithAdjacentDuplicates(t *testing.T) {
 	testCases := []stringStringTestObject{
+		{s: "", expected: ""},
 		{s: "a", expected: "a"},
 		{s: "aab", expected: "b"},
 		{s: "猫a", expected: "猫a"},
@@ -75,7 +79,7 @@ func TestRemoveWhenAdjacentRunes(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%#v", tc.s), func(t *testing.T) {
-			assertStringsEqual(t, tc.expected, removeWhenAdjacentRunes(tc.s))
+			assertStringsEqual(t, tc.expected, ExcludeRunesWithAdjacentDuplicates(tc.s))
 		})
 	}
 }
@@ -91,10 +95,11 @@ func TestGetAdjacentRunes(t *testing.T) {
 		{runes: []rune{'a', 'a'}, expected: []rune{'a'}},
 		{runes: []rune{'a', 'a', 'b', 'b', 'b'}, expected: []rune{'a', 'b'}},
 		{runes: []rune{'猫', '猫', 'a', 'b', 'b'}, expected: []rune{'猫', 'b'}},
+		{runes: []rune{'a', 'a', 'a'}, expected: []rune{'a'}},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%v", tc.runes), func(t *testing.T) {
-			result := getAdjacentRunes(tc.runes)
+			result := FindAdjacentDuplicateRunes(tc.runes)
 			assertRuneSlicesEqual(t, tc.expected, result)
 		})
 	}
@@ -114,6 +119,7 @@ func TestConsecutiveIndex(t *testing.T) {
 		{runes: []rune{'猫', '猫', '猫'}, start: 0, expected: 2},
 		{runes: []rune{'a', '猫', '猫', '猫'}, start: 0, expected: 0},
 		{runes: []rune{'a', '猫', '猫', '猫'}, start: 1, expected: 3},
+		{runes: []rune{'a', 'b'}, start: -1, expected: 0},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%v starting %d", tc.runes, tc.start), func(t *testing.T) {
@@ -127,6 +133,7 @@ func TestConsecutiveIndex(t *testing.T) {
 
 func TestSorted(t *testing.T) {
 	testCases := []stringStringTestObject{
+		{s: "", expected: ""},
 		{s: "a", expected: "a"},
 		{s: "zaZA", expected: "AZaz"},
 		{s: "a猫猫", expected: "a猫猫"},
@@ -154,6 +161,7 @@ func TestRemoveNthRune(t *testing.T) {
 		{s: "猫b", i: 0, expected: "b"},       // runeValue, width := utf8.DecodeRuneInString(s[i:]) , 3 bytes
 		{s: "aчc", i: 3, expected: "aч"},     // a = 1 byte, ч = 2 bytes
 		{s: "猫猫猫9ч", i: 6, expected: "猫猫9ч"}, // 猫 is 3 bytes
+		{s: "abc", i: -1, expected: "abc"},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%#v removal of location %#v", tc.s, tc.i), func(t *testing.T) {
@@ -209,6 +217,7 @@ func TestReplaceNthRuneErrors(t *testing.T) {
 		{s: "a", i: 0, r: -1, expected: "", expectedError: "Invalid Rune"},
 		{s: "a", i: -1, r: 'b', expected: "a", expectedError: ""},
 		{s: "a", i: 2, r: 'b', expected: "a", expectedError: ""},
+		{s: "", i: 0, r: 'a', expected: "", expectedError: ""},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%#v replacement of location %#v with %v", tc.s, tc.i, tc.r), func(t *testing.T) {
@@ -233,6 +242,8 @@ type replaceNthRuneTestObject struct {
 
 func TestPermutations(t *testing.T) {
 	testCases := []stringStringSliceTestObject{
+		{s: "", expected: []string{""}},
+		{s: "aa", expected: []string{"aa", "aa"}},
 		{s: "a", expected: []string{"a"}},
 		{s: "猫", expected: []string{"猫"}},
 		{s: "猫b", expected: []string{"猫b", "b猫"}},
@@ -295,6 +306,8 @@ func TestPermutePick(t *testing.T) {
 			"ca", "cb", "cd",
 			"da", "db", "dc"}},
 		{s: "Туч", n: 2, expected: []string{"Ту", "Тч", "уТ", "уч", "чТ", "чу"}},
+		{s: "ab", n: 0, expected: []string{"ab", "ba"}},
+		{s: "ab", n: 3, expected: []string{"ab", "ba"}},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%#v permutations", tc.s), func(t *testing.T) {
@@ -306,6 +319,7 @@ func TestPermutePick(t *testing.T) {
 func TestCombinations(t *testing.T) {
 	testCases := []stringIntStringSliceTestObject{
 		{s: "a", n: 1, expected: []string{"a"}},
+		{s: "ab", n: 0, expected: []string{"ab"}},
 		{s: "9猫", n: 2, expected: []string{"9猫"}},
 		{s: "ab", n: 1, expected: []string{"a", "b"}},
 		{s: "猫bc", n: 1, expected: []string{"猫", "b", "c"}},
