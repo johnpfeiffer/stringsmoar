@@ -8,8 +8,9 @@ I hope this open source code is helpful (at the very least as an example of how 
 
 updated to do ContinuousIntegration builds with:
 
-- <https://circleci.com/docs/2.0/language-go/>
-- <https://circleci.com/gh/johnpfeiffer/stringsmoar> (see the current build status)
+- <https://app.circleci.com/pipelines/github/johnpfeiffer/stringsmoar> (see the current build status)
+- <https://circleci.com/developer/images/image/cimg/go>
+- <https://circleci.com/docs/2.0/collect-test-data/>
 
 
 *<https://blog.john-pfeiffer.com/golang-testing-benchmark-profiling-subtests-fuzz-testing/> is a longer blog post on Golang testing*
