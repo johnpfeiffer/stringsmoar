@@ -12,6 +12,8 @@ updated to do ContinuousIntegration builds with:
 - <https://circleci.com/gh/johnpfeiffer/stringsmoar> (see the current build status)
 
 
+*<https://blog.john-pfeiffer.com/golang-testing-benchmark-profiling-subtests-fuzz-testing/> is a longer blog post on Golang testing*
+
 # Features
 
 - `Runes` - string to rune slice
@@ -32,7 +34,7 @@ updated to do ContinuousIntegration builds with:
 
 # Tests
 
-While 100% is a dubious achievement, it is still helpful
+While 100% coverage is a dubious achievement, having some mterics and data can still be helpful:
 
 `go test ./...`
 
@@ -43,5 +45,4 @@ While 100% is a dubious achievement, it is still helpful
 `go tool cover -html=count.out`
 
 > cool heat map , <https://go.dev/blog/cover>
-
 
