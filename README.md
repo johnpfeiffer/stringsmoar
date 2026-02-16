@@ -9,6 +9,7 @@ I hope this open source code is helpful (at the very least as an example of how 
 updated to do ContinuousIntegration builds with:
 
 - <https://app.circleci.com/pipelines/github/johnpfeiffer/stringsmoar> (see the current build status)
+- - click on jobs -> "Artifacts" to see the test coverage heatmap)
 - <https://circleci.com/developer/images/image/cimg/go>
 - <https://circleci.com/docs/2.0/collect-test-data/>
 
@@ -32,6 +33,8 @@ updated to do ContinuousIntegration builds with:
 - `PermutePick` - permutations when picking a subset of N runes
 - `Combinations` - order-independent subsets of N runes
 - `DeduplicateRuneCombinations` - deduplicate sorted rune combinations
+- `Reverse` - reverse a string by runes
+- `IsAllNumeric` - true if non-empty and every rune is a digit
 
 # Tests
 

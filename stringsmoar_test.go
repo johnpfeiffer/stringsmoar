@@ -349,6 +349,51 @@ func TestDeduplicateRuneCombinations(t *testing.T) {
 	}
 }
 
+func TestReverse(t *testing.T) {
+	testCases := []stringStringTestObject{
+		{s: "", expected: ""},
+		{s: "a", expected: "a"},
+		{s: "ab", expected: "ba"},
+		{s: "abc", expected: "cba"},
+		{s: "猫b", expected: "b猫"},
+		{s: "hello猫咪", expected: "咪猫olleh"},
+		{s: "  a ", expected: " a  "},
+	}
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("%#v reversed", tc.s), func(t *testing.T) {
+			assertStringsEqual(t, tc.expected, Reverse(tc.s))
+		})
+	}
+}
+
+func TestIsAllNumeric(t *testing.T) {
+	testCases := []stringBoolTestObject{
+		{s: "", expected: false},
+		{s: "0", expected: true},
+		{s: "123", expected: true},
+		{s: "12a3", expected: false},
+		{s: "abc", expected: false},
+		{s: " 123", expected: false},
+		{s: "123 ", expected: false},
+		{s: "12.3", expected: false},
+		{s: "-1", expected: false},
+		{s: "٣٢١", expected: true},
+	}
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("%#v is all numeric", tc.s), func(t *testing.T) {
+			result := IsAllNumeric(tc.s)
+			if tc.expected != result {
+				t.Error("\nExpected:", tc.expected, "\nReceived:", result)
+			}
+		})
+	}
+}
+
+type stringBoolTestObject struct {
+	s        string
+	expected bool
+}
+
 type stringStringTestObject struct {
 	s        string
 	expected string

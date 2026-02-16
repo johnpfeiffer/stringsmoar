@@ -7,6 +7,7 @@ import (
 	"errors"
 	"sort"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 )
 
@@ -252,4 +253,26 @@ func replaceNthRune(s string, n int, newR rune) (string, error) {
 		}
 	}
 	return buffer.String(), nil
+}
+
+// Reverse returns the string with its runes in reverse order
+func Reverse(s string) string {
+	runes := []rune(s)
+	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
+		runes[i], runes[j] = runes[j], runes[i]
+	}
+	return string(runes)
+}
+
+// IsAllNumeric returns true if the string is non-empty and every rune is a digit
+func IsAllNumeric(s string) bool {
+	if s == "" {
+		return false
+	}
+	for _, r := range s {
+		if !unicode.IsDigit(r) {
+			return false
+		}
+	}
+	return true
 }
